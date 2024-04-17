@@ -1,4 +1,15 @@
-.btn-bd-primary {
-    --bs-btn-bg: #27C3C4;
-    background-color: #27C3C4;
+.form-control{
+    margin-top:10px;
+    padding:10px;
+    border:50px;
+}
+#len{
+    width:600px;
+    margin-left:300px;
+}
+#dd{
+    width:500px;
+}
+#bt{
+    padding-top: 3%;
 }

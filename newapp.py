@@ -1,19 +1,18 @@
-from flask import Flask, url_for, session, render_template, redirect, abort
+from flask import Flask, url_for, session, render_template, redirect, abort, request
 from authlib.integrations.flask_client import OAuth
+from flask_pymongo import PyMongo
 from dotenv import load_dotenv
+import pandas as pd
 import os
 
 app = Flask(__name__)
+app.config["MONGO_URI"] = "mongodb://localhost:27017/Daviz"
+mongo =PyMongo(app)
+
 def config():
     load_dotenv()
-appConfiguration = {
-    # "DAVIZ_CLIENT_ID": "45114726904-1v6o2v0etu1l60fhu90msogrjehksmgg.apps.googleusercontent.com",
-    # "DAVIZ_CLIENT_SECRET": "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",
-    "FLASK_SECRET": "b7ad6c36-dbac-43cc-a540-c87630c77181",
-    "FLASK_PORT": 5000
-}
-app.secret_key = appConfiguration.get("FLASK_SECRET")
-#app.config.from_object('config')
+
+app.secret_key = os.getenv('flask_secret')
 
 CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 oauth = OAuth(app)
@@ -30,6 +29,11 @@ oauth.register(
 @app.route('/')
 def home():
     user = session.get('user')
+    if "user" in session:
+        user = session.get('user')
+        name=user['name']
+        email_id=user['email']
+        mongo.db.user.insert_one({'name':name,'email_id':email_id})
     return render_template('home.html', user=user)
 
 
@@ -51,9 +55,19 @@ def logout():
     session.pop('user', None)
     return redirect('/')
 
+app.config["UPLOAD_FOLDER1"]="static/csvfiles"
+
 @app.route("/",methods=['GET','POST'])
-def fileUpload():
-    return render_template("FileUpload.html")
+def upload():
+    if request.method=='POST':
+        upload_csv=request.files['upload_file']
+        if upload_csv.filename != '':
+            file_path=os.path.join(app.config["UPLOAD_FOLDER1"], upload_csv.filename)
+            upload_csv.save(file_path)
+            upload_csv.seek(0)
+            data=pd.read_csv(upload_csv)
+            return render_template("Upload.html",data=data.to_json)
+    return render_template("home.html")
 
 if __name__=="__main__":
-    app.run(host="0.0.0.0", port=appConfiguration.get("FLASK_PORT"), debug=True)
+    app.run(host="0.0.0.0", port=os.getenv('flask_port'), debug=True)
