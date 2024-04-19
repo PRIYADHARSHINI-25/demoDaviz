@@ -29,12 +29,16 @@ oauth.register(
 @app.route('/')
 def home():
     user = session.get('user')
-    if "user" in session:
-        user = session.get('user')
-        name=user['name']
-        email_id=user['email']
-        mongo.db.user.insert_one({'name':name,'email_id':email_id})
-    return render_template('home.html', user=user)
+    name=user['name']
+    email=user['email']
+    id=mongo.db.user.find({"email_id":email})
+    print(id)
+    if email!=id:
+        mongo.db.user.insert_one({'name':name,'email_id':email})
+        return render_template('login.html', user=user)
+    else:
+        return render_template('login.html', user=user)
+
 
 
 @app.route('/login')
@@ -53,7 +57,7 @@ def gsignin():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return redirect('/')
+    return render_template("home.html")
 
 app.config["UPLOAD_FOLDER1"]="static/csvfiles"
 
@@ -66,7 +70,8 @@ def upload():
             upload_csv.save(file_path)
             upload_csv.seek(0)
             data=pd.read_csv(upload_csv)
-            return render_template("Upload.html",data=data.to_json)
+            # print(data)
+            return render_template("Upload.html",data=data.to_html(index=False))
     return render_template("home.html")
 
 if __name__=="__main__":

@@ -20,5 +20,19 @@
             {% endif %}
         </div>
       </nav>
+      {% if user %} 
+    <div class="form-control" id="len">
+      <form method="POST" action="/" enctype="multipart/form-data">
+        <h3 class="page-header text-primary">Upload File</h3>
+        <div class="form-group">
+          <label>Browse File</label>
+          <input type="file" class="form-control" id="dd" name="upload_file">
+        </div>
+    <div class="form-group" id="bt">
+      <button type="submit" class="btn btn-success">Upload</button>
+    </div>
+  </form>
+    </div>
+    {% endif %}
 </body>
 </html>
