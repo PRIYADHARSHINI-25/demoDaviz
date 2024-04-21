@@ -31,13 +31,10 @@ def home():
     user = session.get('user')
     name=user['name']
     email=user['email']
-    id=mongo.db.user.find({"email_id":email})
-    print(id)
-    if email!=id:
-        mongo.db.user.insert_one({'name':name,'email_id':email})
-        return render_template('login.html', user=user)
-    else:
-        return render_template('login.html', user=user)
+    query={'email_id':email}
+    doc ={'$set':{'email_id':email,'name':name}}
+    mongo.db.user.update_one(query,doc,upsert=True)
+    return render_template('login.html', user=name)
 
 
 
