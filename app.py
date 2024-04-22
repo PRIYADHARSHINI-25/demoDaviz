@@ -1,42 +1,95 @@
-from flask import Flask, request, jsonify,render_template
-
-from models import *
+from flask import Flask, url_for, session, render_template, redirect, abort, request
+from authlib.integrations.flask_client import OAuth
+from flask_pymongo import PyMongo
+from dotenv import load_dotenv
+import pandas as pd
+import os
+import gridfs
 
 app = Flask(__name__)
+app.config["MONGO_URI"] = "mongodb://localhost:27017/Daviz"
+mongo =PyMongo(app)
 
+def config():
+    load_dotenv()
+
+app.secret_key = os.getenv('flask_secret')
+
+CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+oauth = OAuth(app)
+oauth.register(
+    name='daviz',
+    client_id=os.getenv('clientID'),
+    client_secret=os.getenv('clientsecret'),
+    server_metadata_url=CONF_URL,
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
 
 @app.route('/')
-def signup():
-    return render_template("signup.html")
-   
-@app.route('/get_signup',methods=['GET','POST'])
-def get_signup():
-    cursor.execute("SELECT * FROM users")
-    users = cursor.fetchall()
-    return jsonify({"users":users})
+def home():
+    user = session.get('user')
+    name=user['name']
+    email=user['email']
+    profile=user['picture']
+    # verify=user['email_verified']
+    query={'email_id':email}
+    doc ={'$set':{'email_id':email,'name':name,'profile':profile}}
+    mongo.db.user.update_one(query,doc,upsert=True)
+    return render_template('login.html', user=name)
 
-   
 
-@app.route('/post_signup', methods=['POST'])
-def post_signup():
-    if request.method == "POST":
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        add_user(username, email, password)
-        return jsonify({"message": "Welcome, {}!".format(username)})
-    else:
-        return "Method Not Allowed", 405
 
-@app.route('/delete')
-def delete_userS():
-    try:
-        id=3
-        delete_user(id)
-        return "delete"
-    except:
-        return "no"
+@app.route('/login')
+def login():
+    if "user" in session:
+        abort(404)
+    return oauth.daviz.authorize_redirect(redirect_uri=url_for('gsignin', _external=True))
 
-if __name__ == '__main__':
-    app.run(debug=True)
-     
+
+@app.route('/gsignin')
+def gsignin():
+    token = oauth.daviz.authorize_access_token()
+    session['user'] = token['userinfo']
+    return redirect('/')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return render_template("home.html")
+
+app.config["UPLOAD_FOLDER1"]="static/csvfiles"
+
+# @app.route("/",methods=['GET','POST'])
+# def upload():
+#     if request.method=='POST':
+#         upload_csv=request.files['upload_file']
+#         if upload_csv.filename != '':
+#             file_path=os.path.join(app.config["UPLOAD_FOLDER1"], upload_csv.filename)
+#             upload_csv.save(file_path)
+#             upload_csv.seek(0)
+#             data=pd.read_csv(upload_csv)
+#             return render_template("Upload.html",data=data.to_html(index=False))
+#     return render_template("home.html")
+
+filegrid=gridfs.GridFS(mongo.db)
+@app.route("/",methods=['GET','POST'])
+def upload():
+    user = session.get('user')
+    email=user['email']
+    query={'email_id':email}
+    if request.method=='POST':
+        upload_csv=request.files['upload_file']
+        print(upload_csv)
+        # filename=upload_csv.filename
+        with open(upload_csv,'rb') as f:
+            csv_id=filegrid.put(f,filename=upload_csv.filename)
+        upload_csv.seek(0)
+        data=pd.read_csv(upload_csv)
+        mongo.db.update_one({query,{'$set':{'files':csv_id}}})
+    return render_template("Upload.html",data=data.to_html(index=False))
+    return render_template("home.html")
+
+if __name__=="__main__":
+    app.run(host="0.0.0.0", port=os.getenv('flask_port'), debug=True)
