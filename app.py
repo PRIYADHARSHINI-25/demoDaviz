@@ -29,15 +29,15 @@ oauth.register(
 
 @app.route('/')
 def home():
-    user = session.get('user')
-    name=user['name']
-    email=user['email']
-    profile=user['picture']
-    # verify=user['email_verified']
-    query={'email_id':email}
-    doc ={'$set':{'email_id':email,'name':name,'profile':profile}}
-    mongo.db.user.update_one(query,doc,upsert=True)
-    return render_template('login.html', user=name)
+        user = session.get('user')
+        # name=user['name']
+        # email=user['email']
+        # profile=user['picture']
+        # # verify=user['email_verified']
+        # query={'email_id':email}
+        # doc ={'$set':{'email_id':email,'name':name,'profile':profile}}
+        # mongo.db.user.update_one(query,doc,upsert=True)
+        return render_template('login.html', user=user)
 
 
 
