@@ -16,8 +16,9 @@
             <li class="nav">{% if user %} <pre>{{user['name']}}</pre></li>
             <a class="btn btn-primary" href="/logout" role="button">Logout</a>
             {% else %}
-            <a class="btn btn-primary" href="/" role="button">About Us</a>
             <a class="btn btn-primary" href="/login" role="button">Google Signup</a>
+            <p><a href="/about">About Us</a></p>
+
             {% endif %}
         </div>
       </nav>
