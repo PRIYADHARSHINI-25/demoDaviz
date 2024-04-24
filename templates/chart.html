@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <title>CSV File</title>
+</head>
+<body>
+    <nav class="navbar" style= "background-color:#c3e7e7;">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/">
+            <img src="/static/resources/Daviz-1.png" alt="Logo" width="100" height="24" class="d-inline-block align-text-bottom"></a>
+            <li class="nav">{% if user %} <pre>{{user}}</pre></li>{% endif %}
+        </div>
+      </nav>
+    <div class="container">
+        <div class="dropdown">
+            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select Chart
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#">Line Chart</a>
+                <a class="dropdown-item" href="#">Bar Chart</a>
+                <a class="dropdown-item" href="#">Time Series</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <div id="target_div">
+    <script>
+        {{data|safe}}
+    </script>
+    </div>
+</body>
+</html>

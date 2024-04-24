@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import os
 import gridfs
+from charts import preproces
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/Daviz"
@@ -44,7 +45,7 @@ def home():
 @app.route('/login')
 def login():
     if "user" in session:
-        abort(404)
+        abort(404)    
     return oauth.daviz.authorize_redirect(redirect_uri=url_for('gsignin', _external=True))
 
 
@@ -78,17 +79,16 @@ filegrid=gridfs.GridFS(mongo.db)
 def upload():
     user = session.get('user')
     email=user['email']
-    query={'email_id':email}
     if request.method=='POST':
         upload_csv=request.files['upload_file']
-        print(upload_csv)
-        # filename=upload_csv.filename
-        with open(upload_csv,'rb') as f:
-            csv_id=filegrid.put(f,filename=upload_csv.filename)
-        upload_csv.seek(0)
-        data=pd.read_csv(upload_csv)
-        mongo.db.update_one({query,{'$set':{'files':csv_id}}})
-    return render_template("Upload.html",data=data.to_html(index=False))
+        content=upload_csv.read()
+        csv_id=filegrid.put(content,filename=upload_csv.filename)
+        # upload_csv.seek(0)
+        mongo.db.user.update_one({'email_id':email},{'$set':{'files':csv_id}})
+        grid_out = filegrid.get(csv_id)
+        data = grid_out.read()
+        chart=preproces(data)
+        return render_template("chart.html",data=chart)
     return render_template("home.html")
 
 if __name__=="__main__":

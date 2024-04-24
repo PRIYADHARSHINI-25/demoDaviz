@@ -3,9 +3,10 @@
     padding:10px;
     border:50px;
 }
+
 #len{
     width:600px;
-    margin-left:300px;
+   /* margin-inline-start:300px; */
 }
 #dd{
     width:500px;
