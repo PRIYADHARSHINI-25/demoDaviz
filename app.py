@@ -3,7 +3,7 @@ from authlib.integrations.flask_client import OAuth
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
 import pandas as pd
-import os, jsonify
+import os
 import gridfs
 from charts import preprocess,chartvis
 
