@@ -1,1 +1,6 @@
-
+flask
+pymongo
+flask-pymongo
+dotenv
+pandas
+Flask-Authlib-Client
