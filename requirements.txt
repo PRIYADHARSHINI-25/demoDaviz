@@ -1,6 +1,6 @@
 flask
 pymongo
 flask-pymongo
-dotenv
+python-dotenv
 pandas
 Flask-Authlib-Client
