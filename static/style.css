@@ -1,65 +1,64 @@
 body {
-    background-image: url('/static/resources/bg-3.jpg');
-    /* background-repeat: no-repeat; */
-    background-attachment: fixed;
-    background-size: cover;
-  }
-
-.btn-color{
-    color: #ffffff !important;
-    background-color: #25B4B6 !important;
-    height: min-content;
-    width:fit-content;
+  background-image: url("/static/resources/bg-3.jpg");
+  /* background-repeat: no-repeat; */
+  background-attachment: fixed;
+  background-size: cover;
 }
-.btn-color:hover{
-    color: #ffffff !important;
-    background-color: #5bc0c0 !important;
+
+.btn-color {
+  color: #ffffff !important;
+  background-color: #25b4b6 !important;
+  height: min-content;
+  width: fit-content;
+}
+.btn-color:hover {
+  color: #ffffff !important;
+  background-color: #5bc0c0 !important;
 }
 .container {
-    display: flex;
-    justify-content:space-between;
-    
-}
-  
-  .links {
-    display: flex;
-    gap: 10px;
-  }
-.form-control{
-    margin-top:10px;
-    padding:10px;
-    border:50px;
+  display: flex;
+  justify-content: space-between;
 }
 
-#len{
-    width:600px;
-   /* margin-inline-start:300px; */
+.links {
+  display: flex;
+  gap: 10px;
 }
-#dd{
-    width:500px;
-}
-#bt{
-    padding-top: 3%;
-}
-.dropcontainer{
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    width: 500px;
-}
-.dropdown{
-    width:100%;
+.form-control {
+  margin-top: 10px;
+  padding: 10px;
+  border: 50px;
 }
 
-.card-body{
-    margin-left: 25%;
-    margin-top: 10%;
-    margin-right: 10%;
-    width: 10%;
+#len {
+  width: 600px;
+  /* margin-inline-start:300px; */
+}
+#dd {
+  width: 500px;
+}
+#bt {
+  padding-top: 3%;
+}
+.dropcontainer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  width: 500px;
+}
+.dropdown {
+  width: 100%;
 }
 
-.page-header{
-    color:#25B4B6;
+.card-body {
+  margin-left: 25%;
+  margin-top: 10%;
+  margin-right: 10%;
+  width: 10%;
+}
+
+.page-header {
+  color: #25b4b6;
 }
 /* footer {
     background-color: #dbdede;

@@ -1,14 +1,15 @@
 from flask import Flask, url_for, session, render_template, redirect, abort, request
 from authlib.integrations.flask_client import OAuth
+from authlib.integrations.base_client.errors import MismatchingStateError
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
+from io import StringIO
 import pandas as pd
-import os
-import gridfs
+import os,gridfs
 from charts import preprocess,chartvis
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/Daviz"
+app.config["MONGO_URI"] = "mongodb://localhost:27017/Daviz1"
 mongo =PyMongo(app)
 
 def config():
@@ -30,36 +31,40 @@ oauth.register(
 
 @app.route('/')
 def home():
-        return render_template('home.html')
-
-
+        return render_template('login.html')
 
 @app.route('/login')
 def login():
     if "user" in session:
-        return render_template('home.html',user=session.get('user'))   
+        user = session.get('user')
+        name=user['name']
+        return render_template('home.html',user=name)   
     return oauth.daviz.authorize_redirect(redirect_uri=url_for('gsignin', _external=True))
 
 
 @app.route('/gsignin')
 def gsignin():
     token = oauth.daviz.authorize_access_token()
-    session['user'] = token['userinfo']
-    user = session.get('user')
-    name=user['name']
-    email=user['email']
-    profile=user['picture']
-        # verify=user['email_verified']
-    query={'email_id':email}
-    doc ={'$set':{'email_id':email,'name':name,'profile':profile}}
-    mongo.db.user.update_one(query,doc,upsert=True)
-    return render_template('login.html', user=name)
+    try:
+        if token:
+            session['user'] = token['userinfo']
+            user = session.get('user')
+            name=user['name']
+            email=user['email']
+            profile=user['picture']
+                # verify=user['email_verified']
+            query={'email_id':email}
+            doc ={'$set':{'email_id':email,'name':name,'profile':profile}}
+            mongo.db.user.update_one(query,doc,upsert=True)
+            return render_template('home.html', user=name)
+    except:
+        return "not working"
     # return redirect('/')
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return render_template("home.html")
+    return render_template("login.html")
 
 # app.config["UPLOAD_FOLDER1"]="static/csvfiles"
 
@@ -75,9 +80,10 @@ def logout():
 #             return render_template("Upload.html",data=data.to_html(index=False))
 #     return render_template("home.html")
 
-filegrid=gridfs.GridFS(mongo.db)
+
 @app.route("/chart",methods=['GET','POST'])
 def chart():
+    filegrid=gridfs.GridFS(mongo.db)
     user = session.get('user')
     email=user['email']
     if request.method=='POST':
@@ -99,21 +105,28 @@ def chart():
         #     chart_user= chartvis(df,xvar,yvar,charttype)
         #     return render_template("chart.html",data=chart_user)
         return render_template("chart.html",option=option,types=types)
-    return render_template("home.html")
+    return render_template("login.html")
 
 @app.route("/visualize",methods=['GET','POST'])
 def visualize():
     if 'df' in session:
-        df = pd.read_json(session['df']) 
+        df=session['df']
+        df = pd.read_json(StringIO(df)) 
+        print(df.head(3))
     if request.method=='POST':
          # Get the AJAX data sent from the HTML
-        charttype=request.form.get('charttyype')
-        xvar=request.form.get('xvar')
-        yvar=request.form.get('yvar')
+        # charttype=request.form.get('charttyype')
+        var=request.form.get("teamDropdown")
+        var1=request.form.get("teamDropdown1")
+        # yvar=request.form.get('yvar')
+        charttype=var
+        xvar=var1
+        yvar='Class'
         print(xvar, yvar, charttype)
         if xvar and yvar and charttype:
             chart_user= chartvis(df,xvar,yvar,charttype)
-            return render_template("chart.html",data=chart_user)
+            print(chart_user )
+            return render_template("logged.html",data=chart_user,var=var)
         else:
             return "Give valid input"
 

@@ -54,10 +54,11 @@
           </button>
           <ul class="dropdown-menu">
             <div class="chart">
-              {% for type in types %}
-            <!-- <option value="{{ option }}">{{ option }}</option> -->
-            <li><a class="dropdown-item" href="#" name="charttype">{{type}}</a></li>
-            {% endfor %}
+              <select name="teamDropdown">
+                {% for team in types %}
+                    <option value="{{ team }}">{{ team }}</option>
+                {% endfor %}
+            </select>
             </div>
           </ul>
           <script>
@@ -79,21 +80,12 @@
           >
             X Axis
           </button>
-          <ul class="dropdown-menu xlabel">
-            {% for opt in option %}
-            <!-- <option value="{{ option }}">{{ option }}</option> -->
-            <li><a class="dropdown-item" href="#" name="xvar">{{opt}}</a></li>
+          <select name="teamDropdown1">
+            {% for team in option %}
+                <option value="{{ team }}">{{ team }}</option>
             {% endfor %}
-          </ul>
-          <script>
-            $(document).ready(function () {
-              $(".xlabel .dropdown-item").click(function () {
-                var selectedOption = $(this).text();
-                // Display the selected option within the dropdown button
-                $("#xdropdown .btn").text("xAxis: " + selectedOption);
-              });
-            });
-          </script>
+        </select>
+          
         </div>
         <div class="dropdown" id="ydropdown">
           <button
@@ -124,7 +116,6 @@
       </div>
     </form>
     <div id="target_div">
-      {% if data %}
       <script>
         {
           {
@@ -132,7 +123,6 @@
           }
         }
       </script>
-      {% endif %}
     </div>
   </body>
 </html>
