@@ -124,4 +124,4 @@ def visualize():
             return "Give valid input"
 
 if __name__=="__main__":
-    app.run(port=os.getenv('flask_port'), debug=True)
+    app.run( debug=True)
