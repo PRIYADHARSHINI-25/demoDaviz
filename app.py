@@ -9,6 +9,8 @@ from charts import preprocess,chartvis
 
 
 app = Flask(__name__)
+
+'''
 client=MongoClient(os.getenv('mongo_url'))
 app.config["MONGO_URI"] = os.getenv('mongo_url')
 db=client['Daviz']
@@ -29,11 +31,11 @@ oauth.register(
         'scope': 'openid email profile'
     }
 )
-
+'''
 @app.route('/')
 def home():
         return render_template('home.html')
-
+'''
 @app.route('/login')
 def login():
     if "user" in session:
@@ -123,6 +125,6 @@ def visualize():
         else:
             return "Give valid input"
 
-
+'''
 if __name__=="__main__":
     app.run( debug=True)
