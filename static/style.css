@@ -41,13 +41,11 @@ body {
   padding-top: 3%;
 }
 .dropcontainer {
+  appearance: none;
   margin-top: 10px;
   display: flex;
   justify-content: space-between;
-  width: 500px;
-}
-.dropdown {
-  width: 100%;
+  width: 80%;
 }
 
 .card-body {

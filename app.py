@@ -1,16 +1,17 @@
-from flask import Flask, url_for, session, render_template, redirect, abort, request
+from flask import Flask, url_for, session, render_template, redirect, request,flash
 from authlib.integrations.flask_client import OAuth
 from authlib.integrations.base_client.errors import MismatchingStateError
-from flask_pymongo import PyMongo
+from flask_pymongo import PyMongo,MongoClient
 from dotenv import load_dotenv
-from io import StringIO
 import pandas as pd
 import os,gridfs
 from charts import preprocess,chartvis
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/Daviz1"
+client=MongoClient("mongodb://daviz:mvX3NgUj0JWA0xHwc48XKrO6enV6H0Wa3vVljVYmJn99glZxqIsUPb4Fov3IQ3iqaydNkieJVDQpACDbc9YA4Q==@daviz.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@daviz@")
+app.config["MONGO_URI"] = "mongodb://daviz:mvX3NgUj0JWA0xHwc48XKrO6enV6H0Wa3vVljVYmJn99glZxqIsUPb4Fov3IQ3iqaydNkieJVDQpACDbc9YA4Q==@daviz.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@daviz@Daviz"
 mongo =PyMongo(app)
+db=client['Daviz']
 
 def config():
     load_dotenv()
@@ -31,40 +32,39 @@ oauth.register(
 
 @app.route('/')
 def home():
-        return render_template('login.html')
+        return render_template('home.html')
 
 @app.route('/login')
 def login():
     if "user" in session:
         user = session.get('user')
         name=user['name']
-        return render_template('home.html',user=name)   
+        return render_template('fileupload.html',user=name)   
     return oauth.daviz.authorize_redirect(redirect_uri=url_for('gsignin', _external=True))
 
 
 @app.route('/gsignin')
 def gsignin():
-    token = oauth.daviz.authorize_access_token()
     try:
-        if token:
-            session['user'] = token['userinfo']
-            user = session.get('user')
-            name=user['name']
-            email=user['email']
-            profile=user['picture']
-                # verify=user['email_verified']
-            query={'email_id':email}
-            doc ={'$set':{'email_id':email,'name':name,'profile':profile}}
-            mongo.db.user.update_one(query,doc,upsert=True)
-            return render_template('home.html', user=name)
-    except:
-        return "not working"
-    # return redirect('/')
+        token = oauth.daviz.authorize_access_token()
+        session['user'] = token['userinfo']
+        user = session.get('user')
+        name=user['name']
+        email=user['email']
+        profile=user['picture']
+        # verify=user['email_verified']
+        query={'email_id':email}
+        doc ={'$set':{'email_id':email,'name':name,'profile':profile}}
+        db.user.update_one(query,doc,upsert=True)
+        return render_template('fileupload.html', user=name)
+    except MismatchingStateError:
+        flash('This action is not possible. Please try again.')
+        return render_template("home.html")
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return render_template("login.html")
+    return render_template("home.html")
 
 # app.config["UPLOAD_FOLDER1"]="static/csvfiles"
 
@@ -83,50 +83,43 @@ def logout():
 
 @app.route("/chart",methods=['GET','POST'])
 def chart():
-    filegrid=gridfs.GridFS(mongo.db)
+    filegrid=gridfs.GridFS(db)
     user = session.get('user')
     email=user['email']
     if request.method=='POST':
-        upload_csv=request.files['upload_file']
-        # xvar=request.form.get('xAxis')
-        # yvar=request.form.get('yAxis')
-        # charttype=request.form.get('charttype')
-        # print(xvar,yvar,charttype)
+        csvfile=request.files['upload_file']
         # content.seek(0)
-        content=upload_csv.read()
-        csv_id=filegrid.put(content,filename=upload_csv.filename)
-        mongo.db.user.update_one({'email_id':email},{'$set':{'files':csv_id}})
-        grid_out = filegrid.get(csv_id)
-        data = grid_out.read()
-        option,df=preprocess(data)
-        session['df'] = df.to_json()
-        types=['line','bar','pie']
-        # if xvar and yvar and charttype:
-        #     chart_user= chartvis(df,xvar,yvar,charttype)
-        #     return render_template("chart.html",data=chart_user)
-        return render_template("chart.html",option=option,types=types)
-    return render_template("login.html")
+        try:
+            content=csvfile.read()
+            csv_id=filegrid.put(content,filename=csvfile.filename)
+            db.user.update_one({'email_id':email},{'$set':{'files':csv_id}})
+            grid_out = filegrid.get(csv_id)
+            data = grid_out.read()
+            option,df=preprocess(data)
+            df_dict = df.to_dict(orient='records')
+            db.user.update_one({'email_id':email},{'$set':{'dataframe':df_dict}})
+            types=['line','bar','pie']
+            return render_template("input.html",option=option,types=types)
+        except:
+            return"Only CSV files are allowed"
+        
+    return render_template("home.html")
 
 @app.route("/visualize",methods=['GET','POST'])
 def visualize():
-    if 'df' in session:
-        df=session['df']
-        df = pd.read_json(StringIO(df)) 
-        print(df.head(3))
+    # if 'user' in session:
+    user = session.get('user')
+    email=user['email']
+    document = db.user.find_one({'email_id': email})
+    df = pd.DataFrame(document['dataframe'])
     if request.method=='POST':
-         # Get the AJAX data sent from the HTML
-        # charttype=request.form.get('charttyype')
-        var=request.form.get("teamDropdown")
-        var1=request.form.get("teamDropdown1")
-        # yvar=request.form.get('yvar')
-        charttype=var
-        xvar=var1
-        yvar='Class'
+        charttype=request.form.get("chartType")
+        xvar=request.form.get("xvar")
+        yvar=request.form.get("yvar")
         print(xvar, yvar, charttype)
         if xvar and yvar and charttype:
             chart_user= chartvis(df,xvar,yvar,charttype)
-            print(chart_user )
-            return render_template("logged.html",data=chart_user,var=var)
+            return render_template("chart.html",data=chart_user)
         else:
             return "Give valid input"
 
