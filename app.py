@@ -9,8 +9,7 @@ from charts import preprocess,chartvis
 
 app = Flask(__name__)
 client=MongoClient(os.getenv('mongo_url'))
-app.config["MONGO_URI"] = "mongodb://daviz:mvX3NgUj0JWA0xHwc48XKrO6enV6H0Wa3vVljVYmJn99glZxqIsUPb4Fov3IQ3iqaydNkieJVDQpACDbc9YA4Q==@daviz.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@daviz@Daviz"
-mongo =PyMongo(app)
+app.config["MONGO_URI"] = os.getenv('mongo_url')
 db=client['Daviz']
 
 def config():
