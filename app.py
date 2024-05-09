@@ -7,6 +7,7 @@ import pandas as pd
 import os,gridfs
 from charts import preprocess,chartvis
 
+
 app = Flask(__name__)
 client=MongoClient(os.getenv('mongo_url'))
 app.config["MONGO_URI"] = os.getenv('mongo_url')
