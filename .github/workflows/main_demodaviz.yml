@@ -26,11 +26,12 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-
+      
       - name: Install dependencies
         run: pip install -r requirements.txt
-
+        
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 
@@ -48,6 +49,8 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -58,10 +61,18 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_ED633ABD90F8467B8309CAE8A6D9E82A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_95E6AB2EB2E84113B8A3CF0066BC7544 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2B71FE63BE7649E8ABDB0ED47EAB833E }}
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
           app-name: 'demodaviz'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0B60B29791D2479EAD495647059D3FCC }}
+          
