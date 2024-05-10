@@ -91,22 +91,21 @@ def chart():
     if request.method=='POST':
         csvfile=request.files['upload_file']
         # content.seek(0)
-        try:
-            content=csvfile.read()
-            csv_id=filegrid.put(content,filename=csvfile.filename)
-            db.user.update_one({'email_id':email},{'$set':{'files':csv_id}})
-            grid_out = filegrid.get(csv_id)
-            data = grid_out.read()
-            option,df=preprocess(data)
-            df_dict = df.to_dict(orient='records')
-            db.user.update_one({'email_id':email},{'$set':{'dataframe':df_dict}})
-            types=['line','bar','pie']
-            return render_template("input.html",option=option,types=types)
-        except:
-            user = session.get('user')
-            name=user['name']
-            flash("only csv are allowed. kindly upload appropriate file")
-            return render_template("fileupload.html",user=name)
+        content=csvfile.read()
+        csv_id=filegrid.put(content,filename=csvfile.filename)
+        db.user.update_one({'email_id':email},{'$set':{'files':csv_id}})
+        grid_out = filegrid.get(csv_id)
+        data = grid_out.read()
+        option,df=preprocess(data)
+        df_dict = df.to_dict(orient='records')
+        db.user.update_one({'email_id':email},{'$set':{'dataframe':df_dict}})
+        types=['line','bar','pie']
+        return render_template("input.html",option=option,types=types)
+        
+            # user = session.get('user')
+            # name=user['name']
+            # flash("only csv are allowed. kindly upload appropriate file")
+            # return render_template("fileupload.html",user=name)
 
 @app.route("/visualize",methods=['GET','POST'])
 def visualize():
