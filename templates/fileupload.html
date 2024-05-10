@@ -30,13 +30,16 @@
     </div>
   </nav>
   {% if user %}
-
-
+  {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <script>alert("{{ messages[0] }}");</script>
+            {% endif %}
+            {% endwith %}
   <div class="card-body">
     <div class="form-control " id="len">
       <form method="POST" action="/chart" enctype="multipart/form-data">
-        <h3 class="page-header">Upload CSV File</h3>
-        <div class="form-group">
+          <h3 class="page-header">Upload CSV File</h3>
+          <div class="form-group">
           <label>Browse File</label>
           <input type="file" class="form-control" id="dd" name="upload_file" required>
         </div>

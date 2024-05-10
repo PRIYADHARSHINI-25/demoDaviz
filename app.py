@@ -10,7 +10,7 @@ from charts import preprocess,chartvis
 
 app = Flask(__name__)
 
-'''
+
 client=MongoClient(os.getenv('mongo_url'))
 app.config["MONGO_URI"] = os.getenv('mongo_url')
 db=client['Daviz']
@@ -31,11 +31,11 @@ oauth.register(
         'scope': 'openid email profile'
     }
 )
-'''
+
 @app.route('/')
 def home():
         return render_template('home.html')
-'''
+
 @app.route('/login')
 def login():
     if "user" in session:
@@ -103,9 +103,10 @@ def chart():
             types=['line','bar','pie']
             return render_template("input.html",option=option,types=types)
         except:
-            return"Only CSV files are allowed"
-        
-    return render_template("home.html")
+            user = session.get('user')
+            name=user['name']
+            flash("only csv are allowed. kindly upload appropriate file")
+            return render_template("fileupload.html",user=name)
 
 @app.route("/visualize",methods=['GET','POST'])
 def visualize():
@@ -125,6 +126,6 @@ def visualize():
         else:
             return "Give valid input"
 
-'''
+
 if __name__=="__main__":
-    app.run( debug=True)
+    app.run(debug=True)
