@@ -4,6 +4,7 @@ body {
   background-attachment: fixed;
   background-size: cover;
 }
+
 .navi{
   display: flex;
   margin-left:auto;
@@ -17,6 +18,13 @@ body {
 }
 .navi a:hover {
   color: #25b4b6 !important;
+}
+footer {
+  background-color: #dbdede;
+  text-align: center;
+  width:100vw;
+  position: absolute;
+  bottom: 0;
 }
 .btn-color {
   color: #ffffff !important;
@@ -42,7 +50,6 @@ body {
   padding: 10px;
   border: 50px;
 }
-
 #len {
   width: 600px;
   /* margin-inline-start:300px; */
