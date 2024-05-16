@@ -19,7 +19,7 @@ def config():
     load_dotenv()
 
 app.secret_key = os.getenv('flask_secret')
-
+'''
 CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 oauth = OAuth(app)
 oauth.register(
@@ -31,11 +31,11 @@ oauth.register(
         'scope': 'openid email profile'
     }
 )
-
+'''
 @app.route('/')
 def home():
-        return render_template('home.html')
-
+    return "welcome"
+'''
 @app.route('/login')
 def login():
     if "user" in session:
@@ -125,6 +125,6 @@ def visualize():
         else:
             return "Give valid input"
 
-
+'''
 if __name__=="__main__":
     app.run(debug=True)
