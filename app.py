@@ -1,7 +1,7 @@
 from flask import Flask, url_for, session, render_template, redirect, request,flash
 from authlib.integrations.flask_client import OAuth
 from authlib.integrations.base_client.errors import MismatchingStateError
-from flask_pymongo import PyMongo,MongoClient
+from flask_pymongo import MongoClient
 from dotenv import load_dotenv
 import pandas as pd
 import os,gridfs

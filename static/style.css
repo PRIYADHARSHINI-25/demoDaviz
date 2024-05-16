@@ -4,7 +4,20 @@ body {
   background-attachment: fixed;
   background-size: cover;
 }
-
+.navi{
+  display: flex;
+  margin-left:auto;
+  overflow: hidden;
+}
+.navi a {
+  padding: 14px 16px;
+  text-decoration: none;
+  /* color: #02d8d8; */
+  color: #000000;
+}
+.navi a:hover {
+  color: #25b4b6 !important;
+}
 .btn-color {
   color: #ffffff !important;
   background-color: #25b4b6 !important;
